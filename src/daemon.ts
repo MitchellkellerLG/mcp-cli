@@ -7,12 +7,6 @@
 
 import { existsSync, mkdirSync } from 'node:fs';
 import {
-  type ConnectedClient,
-  callTool,
-  connectToServer,
-  listTools,
-} from './client.js';
-import {
   type ServerConfig,
   debug,
   getConfigHash,
@@ -25,6 +19,12 @@ import {
   removeSocketFile,
   writePidFile,
 } from './daemon-state.js';
+import {
+  type ConnectedClient,
+  callTool,
+  connectToServer,
+  listTools,
+} from './transport.js';
 
 // ============================================================================
 // Types
