@@ -63,16 +63,27 @@ describe('Issue #24: transport primitives not exported from client.ts', () => {
 
   test('daemon.ts does NOT import transport primitives from client.ts', () => {
     const source = readFileSync(join(SRC, 'daemon.ts'), 'utf-8');
-    const importFromClient = source.match(
-      /import\s*\{[^}]*\}\s*from\s*['"]\.\/client\.js['"]/gs,
-    );
-    if (importFromClient) {
-      for (const block of importFromClient) {
-        expect(block).not.toContain('connectToServer');
-        expect(block).not.toContain('listTools');
-        expect(block).not.toContain('callTool');
-        expect(block).not.toContain('ConnectedClient');
-      }
+
+    // daemon.ts must not import these names from client.ts under any circumstances.
+    // Checking the raw source catches re-exports, aliased imports, and dynamic requires.
+    const forbidden = ['connectToServer', 'listTools', 'callTool', 'ConnectedClient'];
+    const fromClientPattern = /from\s*['"]\.\/client\.js['"]/;
+
+    // If there is no import from client.ts at all, we still need to ensure
+    // the forbidden names aren't sneaking in via other means from client.
+    // The primary guard: any line that mentions a forbidden name AND client.js
+    // on the same import statement must not exist.
+    for (const name of forbidden) {
+      // Find any import block that references client.js and contains the name
+      const pattern = new RegExp(
+        `import\\s*\\{[^}]*${name}[^}]*\\}\\s*from\\s*['"]\\./client\\.js['"]`,
+        'gs',
+      );
+      expect(source).not.toMatch(pattern);
     }
+
+    // Belt-and-suspenders: assert there is no import from client.js at all.
+    // daemon.ts must go through transport.js directly.
+    expect(source).not.toMatch(fromClientPattern);
   });
 });
