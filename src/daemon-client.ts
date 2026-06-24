@@ -13,15 +13,14 @@ import {
   getSocketDir,
   getSocketPath,
 } from './config.js';
+import { type DaemonRequest, type DaemonResponse } from './daemon.js';
 import {
-  type DaemonRequest,
-  type DaemonResponse,
   isProcessRunning,
   killProcess,
   readPidFile,
   removePidFile,
   removeSocketFile,
-} from './daemon.js';
+} from './daemon-state.js';
 
 // ============================================================================
 // Daemon Connection
